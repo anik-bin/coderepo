@@ -1,4 +1,4 @@
-# RepoMind — Claude Code Instructions
+# CodeRepo — Claude Code Instructions
 
 ## What this project is
 A SaaS app where developers connect a GitHub repo and ask questions about the codebase.
@@ -19,9 +19,9 @@ No auth, no billing, no multi-tenancy yet. Single user, local only.
 - Code parsing: tree-sitter
 
 ## Project structure
-repomind/
+coderepo/
   backend/          <- Django project root
-    repomind/       <- settings package
+    coderepo/       <- settings package
     api/            <- main Django app (models, views, urls, serializers)
     ingestion/      <- repo cloning, chunking, embedding pipeline
     agent/          <- LangGraph StateGraph, nodes, prompts
@@ -88,7 +88,7 @@ OPENAI_API_KEY=
 GITHUB_TOKEN=        <- personal access token for cloning repos
 LANGCHAIN_API_KEY=   <- LangSmith (free at smith.langchain.com)
 LANGCHAIN_TRACING_V2=true
-LANGCHAIN_PROJECT=repomind-mvp
+LANGCHAIN_PROJECT=coderepo-mvp
 DJANGO_SECRET_KEY=
 DEBUG=True
 

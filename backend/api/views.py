@@ -1,4 +1,4 @@
-"""DRF views for RepoMind API endpoints."""
+"""DRF views for CodeRepo API endpoints."""
 
 import json
 import logging

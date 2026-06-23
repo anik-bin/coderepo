@@ -34,7 +34,7 @@ export function RepoConnector({ onConnected }) {
       <div className="w-full max-w-lg">
         {/* Header */}
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-semibold text-white tracking-tight mb-2">RepoMind</h1>
+          <h1 className="text-3xl font-semibold text-white tracking-tight mb-2">CodeRepo</h1>
           <p className="text-gray-400 text-sm">Connect a GitHub repo and ask questions about the code.</p>
         </div>
 

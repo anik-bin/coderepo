@@ -1,4 +1,4 @@
-"""Data models for RepoMind: repos, chat sessions, messages, and citations."""
+"""Data models for CodeRepo: repos, chat sessions, messages, and citations."""
 
 import uuid
 from django.db import models

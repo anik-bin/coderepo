@@ -1,4 +1,4 @@
-"""All prompt strings for the RepoMind agent nodes."""
+"""All prompt strings for the CodeRepo agent nodes."""
 
 SYNTHESISER_SYSTEM = """You are an expert code assistant that answers questions about a GitHub repository.
 

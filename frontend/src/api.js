@@ -1,5 +1,5 @@
 /**
- * All network calls for RepoMind go through this module.
+ * All network calls for CodeRepo go through this module.
  * Components and hooks import from here — never call fetch() directly.
  */
 

@@ -22,7 +22,7 @@ def clone_repo(github_url: str) -> Path:
     The caller is responsible for deleting the directory when done
     (use try/finally or a context manager).
     """
-    tmp_dir = tempfile.mkdtemp(prefix='repomind_')
+    tmp_dir = tempfile.mkdtemp(prefix='coderepo_')
     logger.info("Cloning %s into %s", github_url, tmp_dir)
     git.Repo.clone_from(github_url, tmp_dir, depth=1)
     logger.info("Clone complete: %s", tmp_dir)

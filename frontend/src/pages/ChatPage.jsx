@@ -27,7 +27,7 @@ export function ChatPage({ repoId, repoUrl, onDisconnect }) {
     <div className="flex flex-col h-screen bg-gray-950">
       <header className="flex items-center justify-between border-b border-gray-800 px-5 py-3 shrink-0">
         <div className="flex items-center gap-3">
-          <span className="text-white font-semibold text-sm">RepoMind</span>
+          <span className="text-white font-semibold text-sm">CodeRepo</span>
           <span className="text-gray-600 text-xs">·</span>
           <span className="text-indigo-400 text-xs font-mono truncate max-w-[260px]">{repoName}</span>
         </div>

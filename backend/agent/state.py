@@ -1,4 +1,4 @@
-"""TypedDict schema for the RepoMind LangGraph agent state."""
+"""TypedDict schema for the CodeRepo LangGraph agent state."""
 
 from typing import TypedDict
 

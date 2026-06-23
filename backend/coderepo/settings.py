@@ -1,4 +1,4 @@
-"""Django settings for RepoMind — loaded from .env for all secrets."""
+"""Django settings for CodeRepo — loaded from .env for all secrets."""
 
 import os
 from pathlib import Path
@@ -37,7 +37,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'repomind.urls'
+ROOT_URLCONF = 'coderepo.urls'
 
 TEMPLATES = [
     {
@@ -55,7 +55,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'repomind.wsgi.application'
+WSGI_APPLICATION = 'coderepo.wsgi.application'
 
 DATABASES = {
     'default': {

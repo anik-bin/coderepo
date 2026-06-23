@@ -1,4 +1,4 @@
-"""Compile and export the RepoMind LangGraph StateGraph.
+"""Compile and export the CodeRepo LangGraph StateGraph.
 
 The graph is compiled once at module load and reused across requests.
 
