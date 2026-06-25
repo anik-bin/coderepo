@@ -1,5 +1,5 @@
 """
-ASGI config for repomind project.
+ASGI config for coderepo project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 

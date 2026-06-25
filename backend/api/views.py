@@ -5,14 +5,19 @@ import logging
 import queue
 import threading
 
+import httpx
+from django.conf import settings
+from django.contrib.auth.models import User
 from django.http import StreamingHttpResponse
 from rest_framework import status
+from rest_framework.authtoken.models import Token
+from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from langchain.callbacks.base import BaseCallbackHandler
 
-from api.models import Repo, ChatSession, Message
+from api.models import Repo, ChatSession, Message, UserProfile
 from ingestion.pipeline import run_ingestion
 
 logger = logging.getLogger(__name__)
@@ -30,6 +35,104 @@ class _TokenQueueCallback(BaseCallbackHandler):
         self._q.put(('token', token))
 
 
+class GitHubAuthView(APIView):
+    """POST /api/auth/github/ — exchange a GitHub OAuth code for a DRF token."""
+
+    permission_classes = [AllowAny]
+
+    def post(self, request: Request) -> Response:
+        code = request.data.get('code', '').strip()
+        if not code:
+            return Response({'error': 'code is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Step 1: exchange code for GitHub access token
+        token_resp = httpx.post(
+            'https://github.com/login/oauth/access_token',
+            json={
+                'client_id': settings.GITHUB_CLIENT_ID,
+                'client_secret': settings.GITHUB_CLIENT_SECRET,
+                'code': code,
+            },
+            headers={'Accept': 'application/json'},
+            timeout=10,
+        )
+        token_data = token_resp.json()
+        access_token = token_data.get('access_token')
+        if not access_token:
+            error = token_data.get('error_description', 'GitHub auth failed')
+            return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Step 2: fetch GitHub user info
+        user_resp = httpx.get(
+            'https://api.github.com/user',
+            headers={
+                'Authorization': f'Bearer {access_token}',
+                'Accept': 'application/vnd.github+json',
+            },
+            timeout=10,
+        )
+        gh_user = user_resp.json()
+        github_id = gh_user.get('id')
+        github_username = gh_user.get('login', '')
+        avatar_url = gh_user.get('avatar_url', '')
+        email = gh_user.get('email') or ''
+
+        # Step 3: get or create Django User + UserProfile
+        user, _ = User.objects.get_or_create(
+            username=github_username,
+            defaults={'email': email},
+        )
+        profile, created = UserProfile.objects.get_or_create(
+            github_id=github_id,
+            defaults={
+                'user': user,
+                'github_username': github_username,
+                'avatar_url': avatar_url,
+                'github_access_token': access_token,
+            },
+        )
+        if not created:
+            profile.github_access_token = access_token
+            profile.avatar_url = avatar_url
+            profile.save(update_fields=['github_access_token', 'avatar_url'])
+
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response({
+            'token': token.key,
+            'user': {
+                'username': github_username,
+                'avatar_url': avatar_url,
+                'github_username': github_username,
+            },
+        })
+
+
+class CurrentUserView(APIView):
+    """GET /api/auth/me/ — return the currently authenticated user's info."""
+
+    def get(self, request: Request) -> Response:
+        try:
+            profile = request.user.profile
+            avatar_url = profile.avatar_url
+            github_username = profile.github_username
+        except UserProfile.DoesNotExist:
+            avatar_url = ''
+            github_username = request.user.username
+        return Response({
+            'username': request.user.username,
+            'avatar_url': avatar_url,
+            'github_username': github_username,
+        })
+
+
+class LogoutView(APIView):
+    """POST /api/auth/logout/ — invalidate the current token."""
+
+    def post(self, request: Request) -> Response:
+        Token.objects.filter(user=request.user).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class IngestView(APIView):
     """POST /api/ingest/ — clone a GitHub repo and index it into Chroma."""
 
@@ -43,7 +146,11 @@ class IngestView(APIView):
 
         repo, created = Repo.objects.get_or_create(
             github_url=github_url,
-            defaults={'name': _repo_name(github_url), 'status': Repo.Status.INDEXING},
+            defaults={
+                'name': _repo_name(github_url),
+                'status': Repo.Status.INDEXING,
+                'owner': request.user,
+            },
         )
         if not created:
             repo.status = Repo.Status.INDEXING

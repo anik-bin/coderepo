@@ -1,5 +1,5 @@
 """
-WSGI config for repomind project.
+WSGI config for coderepo project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react'
 import { useSSE } from '../hooks/useSSE'
 import { ChatWindow } from '../components/ChatWindow'
 
-export function ChatPage({ repoId, repoUrl, onDisconnect }) {
+export function ChatPage({ repoId, repoUrl, onDisconnect, user, onLogout }) {
   const [messages, setMessages] = useState([])
 
   const handleComplete = useCallback((finalAnswer, finalCitations) => {
@@ -31,12 +31,29 @@ export function ChatPage({ repoId, repoUrl, onDisconnect }) {
           <span className="text-gray-600 text-xs">·</span>
           <span className="text-indigo-400 text-xs font-mono truncate max-w-[260px]">{repoName}</span>
         </div>
-        <button
-          onClick={onDisconnect}
-          className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
-        >
-          Change repo
-        </button>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={onDisconnect}
+            className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+          >
+            Change repo
+          </button>
+          {user?.avatar_url && (
+            <img
+              src={user.avatar_url}
+              alt={user.github_username}
+              className="w-7 h-7 rounded-full"
+            />
+          )}
+          {onLogout && (
+            <button
+              onClick={onLogout}
+              className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+            >
+              Logout
+            </button>
+          )}
+        </div>
       </header>
 
       <div className="flex-1 overflow-hidden">

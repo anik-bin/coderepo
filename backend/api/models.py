@@ -1,7 +1,23 @@
 """Data models for CodeRepo: repos, chat sessions, messages, and citations."""
 
 import uuid
+from django.conf import settings
 from django.db import models
+
+
+class UserProfile(models.Model):
+    """GitHub identity linked to a Django User created via OAuth."""
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile'
+    )
+    github_id = models.IntegerField(unique=True)
+    github_username = models.CharField(max_length=255)
+    avatar_url = models.URLField(blank=True)
+    github_access_token = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.github_username
 
 
 class Repo(models.Model):
@@ -13,6 +29,10 @@ class Repo(models.Model):
         FAILED = 'failed', 'Failed'
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+        null=True, blank=True, related_name='repos'
+    )
     github_url = models.URLField(unique=True)
     name = models.CharField(max_length=255)  # e.g. "owner/repo"
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.INDEXING)
